@@ -7,6 +7,7 @@ use App\Models\SubCategoriaProduto;
 use App\Utils\Log;
 use App\Utils\Response;
 use App\Utils\ValidaDadosCadastroSubCategoriaProduto;
+use App\Utils\ValidaDadosEdicaoSubCategoriaProduto;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -126,6 +127,97 @@ class SubCategoriaProdutoServico implements IServicoSubCategoriaProduto
 
     public function editarSubCategoriaProduto(Request $requisicao): JsonResponse
     {
+
+        try {
+            $validador = ValidaDadosEdicaoSubCategoriaProduto::validarDadosEdicaoSubCategoria($requisicao->all());
+
+            if (is_array($validador)) {
+
+                return Response::response(
+                    'Ocorreram erros de validação de dados!',
+                    $validador,
+                    false,
+                    200
+                );
+            }
+
+            $subCategoria = SubCategoriaProduto::where('sub_categoria_id_hash', $requisicao->id_hash)
+                ->first();
+
+            if (!$subCategoria) {
+
+                return Response::response(
+                    'Não existe uma sub-categoria cadastrada com o id informado!',
+                    [],
+                    true,
+                    200
+                );
+            }
+
+            $subCategoriaComDescricaoInformada = SubCategoriaProduto::where('descricao', $requisicao->descricao)
+                ->first();
+
+            if ($subCategoriaComDescricaoInformada != null) {
+
+                if ($subCategoriaComDescricaoInformada->sub_categoria_id_hash != $requisicao->id_hash) {
+
+                    return Response::response(
+                        'Já existe uma outra sub-categoria cadastrada com a descrição informada!',
+                        [],
+                        false,
+                        200
+                    );
+                }
+
+            }
+
+            $categoriaRelacionada = CategoriaProduto::find($requisicao->categoria_produto_id);
+
+            if (!$categoriaRelacionada) {
+
+                return Response::response(
+                    'Não existe uma categoria cadastrada com o id informado!',
+                    [],
+                    false,
+                    200
+                );
+            }
+
+            $subCategoria->descricao = $requisicao->descricao;
+            $subCategoria->ativo = $requisicao->ativo;
+            $subCategoria->categoria_produto_id = $requisicao->categoria_produto_id;
+
+            if (!$subCategoria->save()) {
+
+                return Response::response(
+                    'Ocorreu um erro ao tentar-se editar a sub-categoria do produto!',
+                    [],
+                    false,
+                    200
+                );
+            }
+
+            return Response::response(
+                'Sub-categoria editada com sucesso!',
+                $requisicao->all(),
+                true,
+                200
+            );
+        } catch (Exception $e) {
+            Log::registrar(
+                $e->getMessage(),
+                $requisicao->all(),
+                true,
+                'Editar sub-categoria de produto'
+            );
+
+            return Response::response(
+                'Ocorreu um erro ao tentar-se editar a sub-categoria do produto!',
+                [],
+                false,
+                200
+            );
+        }
 
     }
 

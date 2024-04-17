@@ -39,4 +39,10 @@ class CategoriaProdutoController extends Controller
 
         return $this->categoriaProdutoServico->alterarStatusCategoriaProduto($requisicao);
     }
+
+    public function editarCategoriaProduto(Request $requisicao): JsonResponse
+    {
+
+        return $this->categoriaProdutoServico->editarCategoriaProduto($requisicao);
+    }
 }

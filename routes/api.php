@@ -8,8 +8,11 @@ use Illuminate\Support\Facades\Route;
 Route::post('/categoria-produto', [ CategoriaProdutoController::class, 'cadastrarCategoriaProduto' ]);
 // cadastrar sub-categoria de produto
 Route::post('/sub-categoria', [ SubCategoriaProdutoController::class, 'cadastrarSubCategoriaProduto' ]);
+// editar dados da categoria de produto
+Route::put('/categoria-produto', [ CategoriaProdutoController::class, 'editarCategoriaProduto' ]);
 // atualizar status da categoria de produto
 Route::put('/categoria-produto/status/alterar', [ CategoriaProdutoController::class, 'alterarStatusCategoriaProduto' ]);
+Route::put('/sub-categoria', [ SubCategoriaProdutoController::class, 'editarSubCategoriaProduto' ]);
 // buscar todas as categorias
 Route::get('/categoria-produto', [ CategoriaProdutoController::class, 'listarTodasCategoriasProduto' ]);
 // buscar todas as sub-categorias

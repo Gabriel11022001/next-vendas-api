@@ -6,6 +6,7 @@ use App\Models\CategoriaProduto;
 use App\Utils\Log;
 use App\Utils\Response;
 use App\Utils\ValidaDadosCadastroCategoriaProduto;
+use App\Utils\ValidaDadosEdicaoCategoriaProduto;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -273,7 +274,7 @@ class CategoriaProdutoServico implements IServicoCategoriaProduto
     {
 
         try {
-            $validador = [];
+            $validador = ValidaDadosEdicaoCategoriaProduto::validarDadosEdicaoCategoriaProduto($requisicao->all());
 
             if (is_array($validador)) {
 
@@ -287,7 +288,53 @@ class CategoriaProdutoServico implements IServicoCategoriaProduto
 
             $categoria = CategoriaProduto::where('categoria_id_hash', $requisicao->id_hash)
                 ->first();
-            dd($categoria);
+
+            if (!$categoria) {
+
+                return Response::response(
+                    'Não existe uma categoria cadastrada no banco de dados com o id informado!',
+                    [],
+                    true,
+                    200
+                );
+            }
+
+            $categoriaConsultadaPelaDescricao = CategoriaProduto::where('descricao', $requisicao->descricao)
+                ->first();
+
+            if ($categoriaConsultadaPelaDescricao != null) {
+
+                if ($categoriaConsultadaPelaDescricao->categoria_id_hash != $requisicao->id_hash) {
+
+                    return Response::response(
+                        'Já existe uma outra categoria cadastrada com essa descrição!',
+                        [],
+                        false,
+                        200
+                    );
+                }
+
+            }
+
+            $categoria->descricao = $requisicao->descricao;
+            $categoria->ativo = $requisicao->ativo;
+
+            if (!$categoria->save()) {
+
+                return Response::response(
+                    'Ocorreu um erro ao tentar-se alterar os dados da categoria, tente novamente!',
+                    [],
+                    false,
+                    200
+                );
+            }
+
+            return Response::response(
+                'Os dados da categoria foram alterados com sucesso!',
+                $requisicao->all(),
+                true,
+                200
+            );
         } catch (Exception $e) {
             Log::registrar(
                 $e->getMessage(),

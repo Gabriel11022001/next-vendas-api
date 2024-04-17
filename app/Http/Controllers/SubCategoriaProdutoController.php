@@ -33,4 +33,10 @@ class SubCategoriaProdutoController extends Controller
 
         return $this->subCategoriaProdutoServico->buscarSubCategoriaProdutoPeloId($idHash);
     }
+
+    public function editarSubCategoriaProduto(Request $requisicao): JsonResponse
+    {
+
+        return $this->subCategoriaProdutoServico->editarSubCategoriaProduto($requisicao);
+    }
 }
