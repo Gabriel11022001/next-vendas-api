@@ -5,7 +5,7 @@ namespace App\Http\Servico;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-interface Iservico
+interface IServico
 {
 
     function salvar(Request $requisicao): JsonResponse;

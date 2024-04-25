@@ -5,7 +5,7 @@ namespace App\Http\Servico;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-interface IServicoSubCategoriaProduto extends Iservico
+interface IServicoSubCategoriaProduto extends IServico
 {
 
     function buscarSubCategoriaProdutoPeloId(string $idHash): JsonResponse;
