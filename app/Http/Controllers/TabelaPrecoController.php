@@ -33,4 +33,10 @@ class TabelaPrecoController extends Controller
 
         return $this->tabelaPrecoServico->buscarTabelaPrecoPeloId($idHash);
     }
+
+    public function alterarStatusTabelaPreco(string $idHash): JsonResponse
+    {
+
+        return $this->tabelaPrecoServico->alterarStatusTabelaPreco($idHash);
+    }
 }

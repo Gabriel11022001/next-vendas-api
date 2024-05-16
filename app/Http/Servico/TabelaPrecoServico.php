@@ -102,12 +102,13 @@ class TabelaPrecoServico implements IServicoTabelaPreco
     {
 
         try {
-            $tabelasPreco = TabelaPreco::all([
-                'tabela_preco_id_hash',
-                'titulo',
-                'ativo'
-            ])
-            ->toArray();
+            $tabelasPreco = TabelaPreco::paginate(10)
+                ->select([
+                    'tabela_preco_id_hash',
+                    'titulo',
+                    'ativo'
+                ])
+                ->toArray();
 
             if (count($tabelasPreco) === 0) {
 
@@ -207,6 +208,56 @@ class TabelaPrecoServico implements IServicoTabelaPreco
 
     public function alterarStatusTabelaPreco(string $idHash): JsonResponse
     {
+
+        try {
+            $tabela = TabelaPreco::where('tabela_preco_id_hash', $idHash)
+                ->first();
+
+            if (!$tabela) {
+
+                return Response::response(
+                    'Não existe uma tabela de preço cadastrada com esse id no banco de dados!',
+                    [],
+                    false,
+                    200
+                );
+            }
+
+            $tabela->ativo = !$tabela->ativo;
+
+            if (!$tabela->save()) {
+
+                return Response::response(
+                    'Ocorreu um erro ao tentar-se atualizar o status da tabela de preço!',
+                    [],
+                    false,
+                    200
+                );
+            }
+
+            return Response::response(
+                'O status da tabela de preço foi alterado com sucesso!',
+                [],
+                true,
+                200
+            );
+        } catch (Exception $e) {
+            Log::registrar(
+                $e->getMessage(),
+                [
+                    'id_hash' => $idHash
+                ],
+                true,
+                'Alterar status da tabela de preço'
+            );
+
+            return Response::response(
+                'Ocorreu um erro ao tentar-se alterar o status da tabela de preço!',
+                [],
+                false,
+                200
+            );
+        }
 
     }
 }
